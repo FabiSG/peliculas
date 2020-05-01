@@ -1,6 +1,10 @@
-#from model.model import Model
-#
-#m = Model()
+# from model.model import Model
+
+# m = Model()
+
+
+# data = m.read_a_genpelicula(3)
+# print(data)
 
 # data = m.read_a_dir_mov(1)
 # print(data)

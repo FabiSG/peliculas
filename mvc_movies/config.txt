@@ -1,4 +1,4 @@
-user:fs
-password:sql1228
+user: pm
+password:Sql1380
 host:localhost
 database:peliculas_db

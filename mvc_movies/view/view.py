@@ -186,9 +186,10 @@ class View:
         print('4. Mostrar todos los generos')
         print('5  Actualizar Genero')
         print('6  Actualizar Genero a pelicula')
-        print('7  Eliminar Genero')
-        print('8  Eliminar Genero a pelicula')
-        print('9  Salir ')
+        print('7  Mostrar generos de una pelicula')
+        print('8  Eliminar Genero')
+        print('9  Eliminar Genero a pelicula')
+        print('10  Salir ')
 
     def show_a_genero(self, record):
         print(f'{record[0]:<3}|{record[1]:<15}')

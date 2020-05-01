@@ -33,12 +33,14 @@ class Model:
     """
     def create_gen(self,genero):
         try:
+            print(genero)
             sql = 'INSERT INTO genero (`genero`) VALUES (%s)'
             vals = (genero,)
             self.cursor.execute(sql,vals)
             self.cnx.commit()
             return True
         except connector.Error as err:
+            print(err)
             self.cnx.rollback()
             return err
 
@@ -110,6 +112,16 @@ class Model:
         except connector.Error as err:
             return err
 
+    def read_a_peliculagen(self,gp_id_pelicula):
+        try:
+            sql = 'SELECT genero.id_genero, genero.genero FROM genpelicula JOIN genero ON genero.id_genero = genpelicula.gp_id_genero WHERE gp_id_pelicula = %s'
+            vals = (gp_id_pelicula,)
+            self.cursor.execute(sql, vals)
+            record = self.cursor.fetchall()
+            return record
+        except connector.Error as err:
+            return err
+
     def read_all_genpelicula(self):
         try:
             sql = 'SELECT genero.id_genero, genero.genero, peliculas.id_pelicula, peliculas.p_titulo FROM genero JOIN genpelicula ON genero.id_genero = genpelicula.gp_id_genero JOIN peliculas ON peliculas.id_peliculas = genpelicula.gp_id_pelicula'
@@ -122,6 +134,8 @@ class Model:
     def update_genpelicula(self, fields, vals):
         try:
             sql = 'UPDATE genpelicula SET '+','.join(fields)+'WHERE gp_id_genero = %s AND gp_id_pelicula = %s'
+            # print(fields)
+            # print(vals)
             self.cursor.execute(sql,vals)
             self.cnx.commit()
             return True
@@ -131,7 +145,7 @@ class Model:
     
     def delete_genero_pelicula(self, gp_id_genero, gp_id_pelicula):
         try:
-            sql = 'DELETE FROM genero WHERE gp_id_genero = %s AND gp_id_pelicula = %s'
+            sql = 'DELETE FROM genpelicula WHERE gp_id_genero = %s AND gp_id_pelicula = %s'
             vals = (gp_id_genero, gp_id_pelicula)
             self.cursor.execute(sql,vals)
             self.cnx.commit()

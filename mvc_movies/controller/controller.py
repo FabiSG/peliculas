@@ -49,6 +49,8 @@ class Controller:
         for f,v in zip(fs,vs):
             if v != '':
                 fields.append(f+' = %s')
+                
+                #print('Update List '+v)
                 vals.append(v)
         return fields, vals
 
@@ -59,9 +61,9 @@ class Controller:
     """
     def movies_menu(self):
         o = '0'
-        while o != '10':
+        while o != '12':
             self.view.movies_menu()
-            self.view.option('10')
+            self.view.option('12')
             o = input()
             if o == '1':
                 self.create_a_movie()
@@ -202,6 +204,24 @@ class Controller:
             self.view.show_actor_footer()
         else:
             self.view.error('Hay un problema todas los actores ')
+        generos = self.model.read_a_peliculagen(i_movie )
+        if generos == []:
+            print('*************************')
+            print('* No existe el genero *')
+            print('*************************')
+            return
+        else:
+            if type(generos) == list:
+                self.view.show_genero_header('Generos de la pelicula ')
+                for genero in generos:
+                    self.view.show_a_genero(genero)
+                self.view.show_genero_footer()
+            else:
+                if generos == []:
+                    self.view.error('La pelicula no contiene generos')
+                else:
+                    self.view.error(' Hay un problema al leer los generos de la pelicula')
+
 
 
     def read_all_details(self):
@@ -305,9 +325,9 @@ class Controller:
     """
     def actors_menu(self):
         o = '0'
-        while o != '8':
+        while o != '10':
             self.view.actors_menu()
-            self.view.option('8')
+            self.view.option('10')
             o = input()
             if o == '1':
                 self.create_a_actor()
@@ -670,11 +690,11 @@ class Controller:
             elif o == '4':
                 self.read_all_generos() 
             elif o == '5':
-                self.read_all_generos_pelicula()                 
-            elif o == '6':
                 self.update_genero()
-            elif o == '7':
+            elif o == '6':
                 self.update_genero_pelicula()
+            elif o == '7':
+                self.read_all_generos_pelicula()                 
             elif o == '8':
                 self.delete_genero()
             elif o == '9':
@@ -695,11 +715,17 @@ class Controller:
     def ask_genero(self):
         self.view.ask('Genero: ')
         Genero = input()
+        return(Genero)
+    
+    def ask_genero2(self):
+        self.view.ask('Genero: ')
+        Genero = input()
         return[Genero]
 
     def create_a_genero(self):
         Genero = self.ask_genero()
         out = self.model.create_gen(Genero)
+        print(out)
         if out == True:
             self.view.ok(Genero, ' se agrego')
         else:
@@ -707,6 +733,7 @@ class Controller:
         return
 
     def add_genero_pelicula(self):
+        self.read_all_movies()
         self.read_all_generos()
         Genero, Pelicula = self.ask_genpelicula()
         out = self.model.create_generos_peliculas(Genero, Pelicula)
@@ -719,7 +746,7 @@ class Controller:
     def read_a_genero(self):
         self.view.ask('ID de Genero: ')
         i_genero = input()
-        genero = self.model.read_a_genpelicula(i_genero)
+        genero = self.model.read_a_genero(i_genero)
         if type(genero) == tuple:
             self.view.show_genero_header('Genero  '+i_genero+' ')
             self.view.show_a_genero(genero)
@@ -729,7 +756,7 @@ class Controller:
             if genero == None:
                 self.view.error('El genero no existe')
             else:
-                self.view.error(' Hay un problema al leer el director ')
+                self.view.error(' Hay un problema al leer el genero ')
         return
     
     def read_all_generos(self):
@@ -747,7 +774,7 @@ class Controller:
     def read_all_generos_pelicula(self):
         self.view.ask('ID de la pelicula: ')
         id_pelicula = input()
-        generos = self.model.read_a_genpelicula(id_pelicula)
+        generos = self.model.read_a_peliculagen(id_pelicula)
         if generos == []:
             print('*************************')
             print('* No existe el genero *')
@@ -766,13 +793,20 @@ class Controller:
                     self.view.error(' Hay un problema al leer los generos de la pelicula')
             return
 
-    #def read_all_generos_pelicula()
         
     def update_genero_pelicula(self):
         self.read_all_movies()
         self.view.ask(' ID de la pelicula a modificar: ')
         id_pelicula = input()
-        self.read_all_generos_pelicula(id_pelicula)
+        generos = self.model.read_a_peliculagen(id_pelicula)
+        if type(generos) ==  list:
+            self.view.show_genero_header(' Todos los generos de la pelicula ')
+            for genero in generos:
+                self.view.show_a_genero(genero)
+            self.view.show_genero_midder()
+            self.view.show_genero_footer()
+        else:
+            self.view.error('Hay un problema con todos los generos ')
         self.view.ask(' ID de genero a modificar: ')
         id_genero = input()
         self.view.msg('Ingresa los valores a modificar ( vacio para dejarlo igual ):')
@@ -781,7 +815,7 @@ class Controller:
         vals.append(id_genero)
         vals.append(id_pelicula)
         vals = tuple(vals)
-        out = self.model.update_genero(fields,vals)
+        out = self.model.update_genpelicula(fields,vals)
         if out == True:
             self.view.ok(id_genero, 'atualizo')
         else:
@@ -789,15 +823,18 @@ class Controller:
         return
         
     def update_genero(self):
-        self.read_all_movies()
+        self.read_all_generos()
         self.view.ask(' ID de genero a modificar: ')
         id_genero = input()
         self.view.msg('Ingresa los valores a modificar ( vacio para dejarlo igual ):')
-        whole_vals = self.ask_genero()
+        whole_vals = self.ask_genero2()
+        #print(whole_vals) cprrecto
         fields, vals = self.update_lists(['genero'],whole_vals)
         vals.append(id_genero)
         vals = tuple(vals)
+        #print(vals) la marrana torcio el rabo
         out = self.model.update_genero(fields,vals)
+        
         if out == True:
             self.view.ok(id_genero, 'atualizo')
         else:
@@ -818,10 +855,33 @@ class Controller:
         return
 
     def delete_genero_pelicula(self):
+        self.read_all_movies()
+        self.view.ask('ID de la pelicula para borrar genero: ')
+        id_pelicula = input()
+
+
+
+
+        generos = self.model.read_a_peliculagen(id_pelicula)
+        if generos == []:
+            print('*************************')
+            print('* No existe el genero *')
+            print('*************************')
+            return
+        else:
+            if type(generos) == list:
+                self.view.show_genero_header('Generos de la pelicula ')
+                for genero in generos:
+                    self.view.show_a_genero(genero)
+                self.view.show_genero_footer()
+            else:
+                if generos == []:
+                    self.view.error('La pelicula no contiene generos')
+                else:
+                    self.view.error(' Hay un problema al leer los generos de la pelicula')
+
         self.view.ask('ID del genero a borrar: ')
         id_genero = input()
-        self.view.ask('ID de la pelicula a borrar: ')
-        id_pelicula = input()
         count = self.model.delete_genero_pelicula(id_genero, id_pelicula)
         if count != 0:
             self.view.ok(id_genero + ' ' +id_pelicula, 'Borro')
