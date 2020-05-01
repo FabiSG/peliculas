@@ -1,0 +1,4 @@
+user:fs
+password:sql1228
+host:localhost
+database:peliculas_db
